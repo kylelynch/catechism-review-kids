@@ -231,6 +231,15 @@ body {
   line-height: 1.25;
   margin-bottom: 32px;
 }
+.tw-content-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
 .tw-answer {
   font-size: clamp(1.5rem, 4vw, 2.6rem);
   font-weight: 400;
@@ -249,7 +258,6 @@ body {
   transform: translateY(0);
 }
 .tw-scripture {
-  margin-top: 32px;
   text-align: center;
   max-width: 750px;
   background: var(--bg-card);
@@ -685,10 +693,12 @@ html.light {
   <button class="back-btn" onclick="goToMenu()">&#x2190; Menu</button>
   <div class="tw-question-num" id="tw-qnum"></div>
   <div class="tw-question" id="tw-question"></div>
-  <div class="tw-answer" id="tw-answer"></div>
-  <div class="tw-scripture" id="tw-scripture">
-    <div class="ref" id="tw-ref"></div>
-    <div class="verse" id="tw-verse"></div>
+  <div class="tw-content-wrap" id="tw-content-wrap">
+    <div class="tw-answer" id="tw-answer"></div>
+    <div class="tw-scripture" id="tw-scripture">
+      <div class="ref" id="tw-ref"></div>
+      <div class="verse" id="tw-verse"></div>
+    </div>
   </div>
   <div class="tw-hint" id="tw-hint">Tap or press Space to reveal</div>
 </div>
@@ -921,9 +931,11 @@ function showThisWeek() {
   document.getElementById('tw-question').textContent = q.question;
   document.getElementById('tw-answer').textContent = q.answer;
   document.getElementById('tw-answer').classList.remove('visible');
+  document.getElementById('tw-answer').style.display = '';
   document.getElementById('tw-ref').textContent = q.verseReference;
   document.getElementById('tw-verse').textContent = q.verseText;
   document.getElementById('tw-scripture').classList.remove('visible');
+  document.getElementById('tw-scripture').style.display = 'none';
   document.getElementById('tw-hint').textContent = 'Tap or press Space to reveal answer';
   document.getElementById('tw-hint').style.display = '';
   showScreen('thisweek-screen');
@@ -931,14 +943,72 @@ function showThisWeek() {
 
 function advanceThisWeek() {
   if (twStage === 0) {
+    // Reveal answer
     document.getElementById('tw-answer').classList.add('visible');
-    document.getElementById('tw-hint').textContent = 'Tap or press Space to show scripture';
+    document.getElementById('tw-hint').textContent = 'Tap or press Space for scripture';
     twStage = 1;
   } else if (twStage === 1) {
-    document.getElementById('tw-scripture').classList.add('visible');
-    document.getElementById('tw-hint').style.display = 'none';
+    // Crossfade to scripture
+    twCrossfade(
+      document.getElementById('tw-answer'),
+      document.getElementById('tw-scripture')
+    );
+    document.getElementById('tw-hint').textContent = 'Tap or press Space for answer';
     twStage = 2;
+  } else {
+    // Crossfade back to answer
+    twCrossfade(
+      document.getElementById('tw-scripture'),
+      document.getElementById('tw-answer')
+    );
+    document.getElementById('tw-hint').textContent = 'Tap or press Space for scripture';
+    twStage = 1;
   }
+}
+
+function twCrossfade(outEl, inEl) {
+  const wrap = document.getElementById('tw-content-wrap');
+  const startHeight = wrap.offsetHeight;
+
+  // Fade out the current element
+  outEl.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+  outEl.style.opacity = '0';
+  outEl.style.transform = 'translateY(-8px)';
+
+  setTimeout(() => {
+    outEl.style.display = 'none';
+    outEl.style.transition = '';
+    outEl.style.opacity = '';
+    outEl.style.transform = '';
+
+    // Measure incoming height
+    inEl.style.display = '';
+    inEl.style.opacity = '0';
+    inEl.style.transform = 'translateY(8px)';
+    inEl.classList.add('visible');
+    const endHeight = inEl.offsetHeight;
+
+    // Lock wrapper to start height, then animate to end height
+    wrap.style.height = startHeight + 'px';
+    void wrap.offsetWidth;
+    wrap.style.height = endHeight + 'px';
+
+    // Fade in incoming
+    void inEl.offsetWidth;
+    inEl.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+    inEl.style.opacity = '1';
+    inEl.style.transform = 'translateY(0)';
+
+    // Clean up after transitions finish
+    function cleanup() {
+      wrap.removeEventListener('transitionend', cleanup);
+      wrap.style.height = '';
+      inEl.style.transition = '';
+      inEl.style.opacity = '';
+      inEl.style.transform = '';
+    }
+    wrap.addEventListener('transitionend', cleanup);
+  }, 250);
 }
 
 // ─── RAPID FIRE ───
