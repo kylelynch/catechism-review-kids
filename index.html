@@ -670,6 +670,10 @@ html.light {
       <span class="btn-icon">&#x1F4D6;</span>
       <span class="btn-label">This Week<small>Current question with scripture</small></span>
     </button>
+    <button class="menu-btn" onclick="showLastWeek()" id="last-week-btn">
+      <span class="btn-icon">&#x1F519;</span>
+      <span class="btn-label">Last Week<small>Review previous week's question</small></span>
+    </button>
     <button class="menu-btn" onclick="showRapidFire()">
       <span class="btn-icon">&#x26A1;</span>
       <span class="btn-label">Rapid Fire<small>Quick review of past questions</small></span>
@@ -700,7 +704,7 @@ html.light {
       <div class="verse" id="tw-verse"></div>
     </div>
   </div>
-  <div class="tw-hint" id="tw-hint">Tap or press Space to reveal</div>
+  <div class="tw-hint" id="tw-hint">Tap or press Space to reveal · Esc = menu</div>
 </div>
 
 <!-- RAPID FIRE SCREEN -->
@@ -903,6 +907,7 @@ function init() {
 function updateWeekDisplay() {
   document.getElementById('week-display').textContent = currentWeek;
   localStorage.setItem('catechism-week', currentWeek);
+  document.getElementById('last-week-btn').style.display = currentWeek <= 1 ? 'none' : '';
 }
 
 function changeWeek(delta) {
@@ -936,7 +941,25 @@ function showThisWeek() {
   document.getElementById('tw-verse').textContent = q.verseText;
   document.getElementById('tw-scripture').classList.remove('visible');
   document.getElementById('tw-scripture').style.display = 'none';
-  document.getElementById('tw-hint').textContent = 'Tap or press Space to reveal answer';
+  document.getElementById('tw-hint').textContent = 'Tap or press Space to reveal answer · Esc = menu';
+  document.getElementById('tw-hint').style.display = '';
+  showScreen('thisweek-screen');
+}
+
+function showLastWeek() {
+  if (currentWeek <= 1) return;
+  const q = questions[currentWeek - 2];
+  twStage = 0;
+  document.getElementById('tw-qnum').textContent = 'Question ' + q.id;
+  document.getElementById('tw-question').textContent = q.question;
+  document.getElementById('tw-answer').textContent = q.answer;
+  document.getElementById('tw-answer').classList.remove('visible');
+  document.getElementById('tw-answer').style.display = '';
+  document.getElementById('tw-ref').textContent = q.verseReference;
+  document.getElementById('tw-verse').textContent = q.verseText;
+  document.getElementById('tw-scripture').classList.remove('visible');
+  document.getElementById('tw-scripture').style.display = 'none';
+  document.getElementById('tw-hint').textContent = 'Tap or press Space to reveal answer · Esc = menu';
   document.getElementById('tw-hint').style.display = '';
   showScreen('thisweek-screen');
 }
@@ -945,7 +968,7 @@ function advanceThisWeek() {
   if (twStage === 0) {
     // Reveal answer
     document.getElementById('tw-answer').classList.add('visible');
-    document.getElementById('tw-hint').textContent = 'Tap or press Space for scripture';
+    document.getElementById('tw-hint').textContent = 'Tap or press Space for scripture · Esc = menu';
     twStage = 1;
   } else if (twStage === 1) {
     // Crossfade to scripture
@@ -953,7 +976,7 @@ function advanceThisWeek() {
       document.getElementById('tw-answer'),
       document.getElementById('tw-scripture')
     );
-    document.getElementById('tw-hint').textContent = 'Tap or press Space for answer';
+    document.getElementById('tw-hint').textContent = 'Tap or press Space for answer · Esc = menu';
     twStage = 2;
   } else {
     // Crossfade back to answer
@@ -961,7 +984,7 @@ function advanceThisWeek() {
       document.getElementById('tw-scripture'),
       document.getElementById('tw-answer')
     );
-    document.getElementById('tw-hint').textContent = 'Tap or press Space for scripture';
+    document.getElementById('tw-hint').textContent = 'Tap or press Space for scripture · Esc = menu';
     twStage = 1;
   }
 }
