@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunday School Catechism</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital@1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent: #C4553A;
+  --text-primary: #1A1A1A;
+  --text-secondary: #8E8E93;
+  --text-tertiary: #AEAEB2;
+  --bg-screen: #FFFFFF;
+  --bg-card: #FAF8F6;
+  --bg-canvas: #F5F3F0;
+  --correct: #16A34A;
+  --incorrect: #DC2626;
+  --divider: #E8E6E3;
+  --accent-12: rgba(196, 85, 58, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: #D4705A;
+    --text-primary: #F5F5F4;
+    --text-secondary: #A1A1AA;
+    --text-tertiary: #71717A;
+    --bg-screen: #121212;
+    --bg-card: #1C1C1E;
+    --bg-canvas: #18181B;
+    --divider: #2C2C2E;
+    --accent-12: rgba(212, 112, 90, 0.12);
+  }
+}
+
+body {
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  background: var(--bg-screen);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+/* Shared screen styles */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  z-index: 10;
+  padding: 24px;
+  background: var(--bg-screen);
+}
+.screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.98);
+  z-index: 1;
+}
+
+/* ─── MENU SCREEN ─── */
+#menu-screen {
+  background: var(--bg-canvas);
+}
+
+.menu-title {
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+  text-align: center;
+}
+.menu-subtitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.menu-btn {
+  background: var(--bg-card);
+  border: none;
+  border-radius: 16px;
+  padding: 20px 24px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.menu-btn:hover, .menu-btn:focus {
+  background: var(--accent-12);
+  outline: none;
+}
+.menu-btn .btn-icon {
+  font-size: 24px;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-12);
+  border-radius: 12px;
+}
+.menu-btn .btn-label {
+  display: flex;
+  flex-direction: column;
+}
+.menu-btn .btn-label small {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* Week selector in menu */
+.week-selector {
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  padding: 12px 24px;
+  border-radius: 12px;
+}
+.week-selector label {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.week-selector .week-display {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 2.5ch;
+  text-align: center;
+}
+.week-btn {
+  background: var(--accent-12);
+  border: none;
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 16px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+}
+.week-btn:hover {
+  background: rgba(196, 85, 58, 0.2);
+}
+
+/* ─── BACK BUTTON ─── */
+.back-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 50;
+  background: var(--bg-card);
+  border: 1.5px solid var(--divider);
+  border-radius: 12px;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+.back-btn:hover {
+  background: var(--accent-12);
+}
+
+/* ─── THIS WEEK SCREEN ─── */
+#thisweek-screen {
+  background: var(--bg-screen);
+}
+
+.tw-question-num {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-12);
+  padding: 4px 12px;
+  border-radius: 100px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.tw-question {
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+  max-width: 900px;
+  line-height: 1.25;
+  margin-bottom: 32px;
+}
+.tw-answer {
+  font-size: clamp(1.5rem, 4vw, 2.6rem);
+  font-weight: 400;
+  color: var(--accent);
+  text-align: center;
+  max-width: 850px;
+  line-height: 1.35;
+  border-left: 3px solid var(--accent);
+  padding-left: 24px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.tw-answer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.tw-scripture {
+  margin-top: 32px;
+  text-align: center;
+  max-width: 750px;
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.tw-scripture.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.tw-scripture .ref {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.tw-scripture .verse {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.tw-hint {
+  position: fixed;
+  bottom: 32px;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  font-weight: 500;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ─── RAPID FIRE SCREEN ─── */
+#rapid-screen {
+  background: var(--bg-screen);
+}
+
+.rapid-top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  padding-left: 100px;
+  background: var(--bg-canvas);
+  z-index: 20;
+  border-bottom: 1px solid var(--divider);
+}
+
+.rapid-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.rapid-toggle {
+  background: transparent;
+  border: 1.5px solid var(--divider);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+.rapid-toggle.active {
+  background: var(--accent-12);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.rapid-stats {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+.stat {
+  text-align: center;
+}
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.rapid-timer {
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.rapid-timer.warning { color: var(--incorrect); }
+.rapid-timer.normal { color: var(--accent); }
+
+.rapid-question-num {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-12);
+  padding: 4px 12px;
+  border-radius: 100px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.rapid-question {
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+  max-width: 850px;
+  line-height: 1.25;
+}
+.rapid-answer {
+  font-size: clamp(1.5rem, 4vw, 2.4rem);
+  color: var(--accent);
+  text-align: center;
+  max-width: 800px;
+  line-height: 1.35;
+  margin-top: 24px;
+  border-left: 3px solid var(--accent);
+  padding-left: 24px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.rapid-answer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.rapid-progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--divider);
+}
+.rapid-progress-bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease-in-out;
+}
+
+/* Timer setup overlay */
+.timer-setup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  transition: opacity 0.3s ease-in-out;
+}
+.timer-setup.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.timer-setup h2 {
+  color: var(--text-primary);
+  font-size: 26px;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+.timer-options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.timer-option {
+  background: var(--bg-card);
+  border: 1.5px solid var(--divider);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 18px;
+  padding: 16px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+.timer-option:hover {
+  background: var(--accent-12);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ─── RANDOM CHALLENGE SCREEN ─── */
+#challenge-screen {
+  background: var(--bg-screen);
+}
+
+.challenge-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.challenge-question {
+  font-size: clamp(1.6rem, 4.5vw, 3rem);
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+  max-width: 850px;
+  line-height: 1.25;
+  margin-bottom: 32px;
+}
+
+.challenge-answer {
+  font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+  color: var(--accent);
+  text-align: center;
+  max-width: 800px;
+  line-height: 1.35;
+  border-left: 3px solid var(--accent);
+  padding-left: 24px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  min-height: 2em;
+}
+.challenge-answer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.challenge-answer .blank {
+  display: inline-block;
+  border-bottom: 2px solid var(--accent);
+  min-width: 4ch;
+  padding: 0 4px;
+  margin: 0 2px;
+  color: transparent;
+  transition: color 0.3s ease-in-out;
+}
+.challenge-answer .blank.revealed {
+  color: var(--correct);
+  border-color: var(--correct);
+}
+
+.challenge-mode-label {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+  font-weight: 400;
+}
+
+.challenge-buttons {
+  margin-top: 32px;
+  display: flex;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.challenge-buttons.visible { opacity: 1; }
+
+.challenge-btn {
+  border: 1.5px solid;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 16px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-weight: 700;
+  background: transparent;
+}
+.challenge-btn.correct {
+  border-color: var(--correct);
+  color: var(--correct);
+}
+.challenge-btn.correct:hover { background: rgba(22,163,74,0.1); }
+.challenge-btn.incorrect {
+  border-color: var(--incorrect);
+  color: var(--incorrect);
+}
+.challenge-btn.incorrect:hover { background: rgba(220,38,38,0.1); }
+.challenge-btn.next {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.challenge-btn.next:hover { background: var(--accent-12); }
+
+/* Confetti canvas */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* Entrance animation */
+.dramatic-enter {
+  animation: fadeSlideIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+@keyframes fadeSlideIn {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Streak flash */
+.streak-flash {
+  animation: streakPop 0.4s ease-out;
+}
+@keyframes streakPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); color: var(--correct); }
+  100% { transform: scale(1); }
+}
+
+/* Dark mode toggle */
+.theme-toggle {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 50;
+  background: var(--bg-card);
+  border: 1.5px solid var(--divider);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 20px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-toggle:hover {
+  background: var(--accent-12);
+  color: var(--accent);
+}
+
+/* Manual dark mode override */
+html.dark {
+  --accent: #D4705A;
+  --text-primary: #F5F5F4;
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #71717A;
+  --bg-screen: #121212;
+  --bg-card: #1C1C1E;
+  --bg-canvas: #18181B;
+  --divider: #2C2C2E;
+  --accent-12: rgba(212, 112, 90, 0.12);
+}
+html.light {
+  --accent: #C4553A;
+  --text-primary: #1A1A1A;
+  --text-secondary: #8E8E93;
+  --text-tertiary: #AEAEB2;
+  --bg-screen: #FFFFFF;
+  --bg-card: #FAF8F6;
+  --bg-canvas: #F5F3F0;
+  --divider: #E8E6E3;
+  --accent-12: rgba(196, 85, 58, 0.12);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .rapid-top-bar { padding: 8px 12px; padding-left: 80px; }
+  .rapid-stats { gap: 12px; }
+  .stat-value { font-size: 16px; }
+  .week-selector { flex-wrap: wrap; justify-content: center; }
+  .menu-buttons { padding: 0 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle" title="Toggle dark mode">&#9790;</button>
+
+<!-- MENU SCREEN -->
+<div id="menu-screen" class="screen">
+  <h1 class="menu-title">Catechism</h1>
+  <p class="menu-subtitle">Sunday School Review</p>
+
+  <div class="menu-buttons">
+    <button class="menu-btn" onclick="showThisWeek()">
+      <span class="btn-icon">&#x1F4D6;</span>
+      <span class="btn-label">This Week<small>Current question with scripture</small></span>
+    </button>
+    <button class="menu-btn" onclick="showRapidFire()">
+      <span class="btn-icon">&#x26A1;</span>
+      <span class="btn-label">Rapid Fire<small>Quick review of past questions</small></span>
+    </button>
+    <button class="menu-btn" onclick="showChallenge()">
+      <span class="btn-icon">&#x1F3AF;</span>
+      <span class="btn-label">Random Challenge<small>Fill-in-the-blank with celebration</small></span>
+    </button>
+  </div>
+
+  <div class="week-selector">
+    <label>Week</label>
+    <button class="week-btn" onclick="changeWeek(-1)">&#x25C0;</button>
+    <span class="week-display" id="week-display">1</span>
+    <button class="week-btn" onclick="changeWeek(1)">&#x25B6;</button>
+  </div>
+</div>
+
+<!-- THIS WEEK SCREEN -->
+<div id="thisweek-screen" class="screen hidden">
+  <button class="back-btn" onclick="goToMenu()">&#x2190; Menu</button>
+  <div class="tw-question-num" id="tw-qnum"></div>
+  <div class="tw-question" id="tw-question"></div>
+  <div class="tw-answer" id="tw-answer"></div>
+  <div class="tw-scripture" id="tw-scripture">
+    <div class="ref" id="tw-ref"></div>
+    <div class="verse" id="tw-verse"></div>
+  </div>
+  <div class="tw-hint" id="tw-hint">Tap or press Space to reveal</div>
+</div>
+
+<!-- RAPID FIRE SCREEN -->
+<div id="rapid-screen" class="screen hidden">
+  <button class="back-btn" onclick="goToMenu()">&#x2190; Menu</button>
+  <div class="rapid-top-bar">
+    <div class="rapid-controls">
+      <button class="rapid-toggle" id="rapid-order-btn" onclick="toggleRapidOrder()">Sequential</button>
+      <button class="rapid-toggle" id="rapid-timer-btn" onclick="openTimerSetup()">Timer: Off</button>
+    </div>
+    <div class="rapid-stats">
+      <div class="stat">
+        <div class="stat-value" id="rapid-streak">0</div>
+        <div class="stat-label">Streak</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="rapid-count">0</div>
+        <div class="stat-label">Answered</div>
+      </div>
+      <div class="rapid-timer normal" id="rapid-timer"></div>
+    </div>
+  </div>
+  <div class="rapid-question-num" id="rapid-qnum"></div>
+  <div class="rapid-question" id="rapid-question"></div>
+  <div class="rapid-answer" id="rapid-answer"></div>
+  <div class="rapid-progress"><div class="rapid-progress-bar" id="rapid-progress-bar"></div></div>
+</div>
+
+<!-- TIMER SETUP OVERLAY -->
+<div class="timer-setup hidden" id="timer-setup">
+  <h2>Set Timer</h2>
+  <div class="timer-options">
+    <button class="timer-option" onclick="setTimer(0)">No Timer</button>
+    <button class="timer-option" onclick="setTimer(60)">1 min</button>
+    <button class="timer-option" onclick="setTimer(120)">2 min</button>
+    <button class="timer-option" onclick="setTimer(180)">3 min</button>
+    <button class="timer-option" onclick="setTimer(300)">5 min</button>
+  </div>
+</div>
+
+<!-- RANDOM CHALLENGE SCREEN -->
+<div id="challenge-screen" class="screen hidden">
+  <button class="back-btn" onclick="goToMenu()">&#x2190; Menu</button>
+  <div class="challenge-label">Random Challenge</div>
+  <div class="challenge-mode-label" id="challenge-mode-label"></div>
+  <div class="challenge-question" id="challenge-question"></div>
+  <div class="challenge-answer" id="challenge-answer"></div>
+  <div class="challenge-buttons" id="challenge-buttons">
+    <button class="challenge-btn correct" onclick="challengeResult(true)">&#x2713; Correct!</button>
+    <button class="challenge-btn incorrect" onclick="challengeResult(false)">&#x2717; Missed It</button>
+  </div>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+// ─── CATECHISM DATA ───
+const questions = [
+  {id:1,question:"Who is God?",answer:"God is the only living and true God. He\u2019s the all-glorious, almighty, all-knowing, sovereign Creator and Lord of the whole universe. God is perfect and holy, infinite, eternal, and unchanging.",verseReference:"1 Timothy 1:17",verseText:"To the King of the ages, immortal, invisible, the only God, be honor and glory forever and ever. Amen."},
+  {id:2,question:"Who made God?",answer:"Nobody made God.",verseReference:"Psalm 90:2",verseText:"Before the mountains were brought forth, or ever you had formed the earth and the world, from everlasting to everlasting you are God."},
+  {id:3,question:"Has God ever had a beginning?",answer:"No, God has always been.",verseReference:"Revelation 4:8",verseText:"And the four living creatures, each of them with six wings, are full of eyes all around and within, and day and night they never cease to say, \"Holy, holy, holy, is the Lord God Almighty, who was and is and is to come!\""},
+  {id:4,question:"Will God ever die?",answer:"No, God lives forever!",verseReference:"Psalm 102:24 & 27",verseText:"\"O my God,\" I say, \"take me not away in the midst of my days\u2014 you whose years endure throughout all generations!\" but you are the same, and your years have no end."},
+  {id:5,question:"Are there more gods than one?",answer:"No, there is only one true God.",verseReference:"Isaiah 45",verseText:"I am the LORD, and there is no other, besides me there is no God."},
+  {id:6,question:"In how many persons does this one God exist?",answer:"God exists in three persons.",verseReference:"2 Corinthians 13:14",verseText:"The grace of the Lord Jesus Christ and the love of God and the fellowship of the Holy Spirit be with you all."},
+  {id:7,question:"Who are the three persons of God?",answer:"The three persons of God are the Father, the Son, and the Holy Spirit.",verseReference:"Matthew 28:19",verseText:"Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit."},
+  {id:8,question:"Where is God?",answer:"God is everywhere.",verseReference:"Psalm 139:7-8",verseText:"Where shall I go from your Spirit? Or where shall I flee from your presence? If I ascend to heaven, you are there! If I make my bed in Sheol, you are there!"},
+  {id:9,question:"Can you see God?",answer:"No, God is a spirit, and He doesn\u2019t have a body like man. Though I cannot see God, I know He always sees me.",verseReference:"Jeremiah 23:23-24",verseText:"\"Am I a God at hand, declares the LORD, and not a God far away? Can a man hide himself in secret places so that I cannot see him? declares the LORD. Do I not fill heaven and earth? declares the LORD.\""},
+  {id:10,question:"Does God know all things?",answer:"Yes, God knows all things. Nothing can be hidden from God.",verseReference:"Job 34:21; Proverbs 15:3",verseText:"For his eyes are on the ways of a man, and he sees all his steps. The eyes of the LORD are in every place, keeping watch on the evil and the good."},
+  {id:11,question:"Can God do all things?",answer:"Yes, God can do all His holy will.",verseReference:"Matthew 19:26",verseText:"But Jesus looked at them and said, \"With man this is impossible, but with God all things are possible.\""},
+  {id:12,question:"Who made you?",answer:"God made me.",verseReference:"Genesis 1:27",verseText:"So God created man in his own image, in the image of God he created him; male and female he created them."},
+  {id:13,question:"Why did God make you?",answer:"I was made to glorify God and enjoy Him forever.",verseReference:"1 Corinthians 10:31",verseText:"So, whether you eat or drink, or whatever you do, do all to the glory of God."},
+  {id:14,question:"What else did God make?",answer:"God made all things.",verseReference:"Genesis 1",verseText:"In the beginning, God created the heavens and the earth."},
+  {id:15,question:"Why did God make all things?",answer:"For His own glory.",verseReference:"Romans 11:36",verseText:"For from him and through him and to him are all things. To him be glory forever. Amen."},
+  {id:16,question:"How can you glorify God?",answer:"I can glorify God by loving Him and doing what He commands.",verseReference:"Micah 6:8",verseText:"He has told you, O man, what is good; and what does the LORD require of you but to do justice, and to love kindness, and to walk humbly with your God?"},
+  {id:17,question:"Why should you glorify God?",answer:"I should glorify God because He made me and takes care of me.",verseReference:"Psalm 117",verseText:"Praise the LORD, all nations! Extol him, all peoples! For great is his steadfast love toward us, and the faithfulness of the LORD endures forever. Praise the LORD!"},
+  {id:18,question:"Who were our first parents?",answer:"Adam and Eve were our first parents.",verseReference:"Genesis 2 & 3",verseText:"Then the LORD God said, \"It is not good that the man should be alone; I will make him a helper fit for him.\""},
+  {id:19,question:"What were Adam and Eve like when God made them?",answer:"God made them holy and happy.",verseReference:"Genesis 2:25",verseText:"And the man and his wife were both naked and were not ashamed."},
+  {id:20,question:"Did Adam obey God?",answer:"No, Adam chose to disobey God.",verseReference:"Genesis 3:6",verseText:"So when the woman saw that the tree was good for food, and that it was a delight to the eyes, and that the tree was to be desired to make one wise, she took of its fruit and ate, and she also gave some to her husband who was with her, and he ate."},
+  {id:21,question:"How did God punish Adam\u2019s disobedience?",answer:"Adam\u2019s punishment was death and separation from God.",verseReference:"Genesis 3:17-24",verseText:"And to Adam he said, \"Because you have listened to the voice of your wife and have eaten of the tree of which I commanded you, \u2018You shall not eat of it,\u2019 cursed is the ground because of you.\""},
+  {id:22,question:"What is sin?",answer:"Sin is disobedience against God\u2019s perfect law by failing to do what God commands or doing what God forbids.",verseReference:"Psalm 25:6-7",verseText:"Remember your mercy, O LORD, and your steadfast love, for they have been from of old."},
+  {id:23,question:"What happened to Adam and Eve when they sinned?",answer:"Instead of being holy and happy, they became sinful and miserable.",verseReference:"Genesis 3:22; Romans 6:23",verseText:"For the wages of sin is death, but the free gift of God is eternal life in Christ Jesus our Lord."},
+  {id:24,question:"What did Adam\u2019s sin do to you?",answer:"It made me guilty and sinful.",verseReference:"Romans 5:12",verseText:"Therefore, just as sin came into the world through one man, and death through sin, and so death spread to all men because all sinned\u2014"},
+  {id:25,question:"What does every sin deserve?",answer:"The wrath and curse of God.",verseReference:"Psalm 89:30-32",verseText:"If his children forsake my law and do not walk according to my rules, if they violate my statutes and do not keep my commandments, then I will punish their transgression with the rod and their iniquity with stripes."},
+  {id:26,question:"How sinful are you by nature?",answer:"I am corrupt in every part of my being.",verseReference:"Romans 3:11-12",verseText:"No one understands; no one seeks for God. All have turned aside; together they have become worthless; no one does good, not even one."},
+  {id:27,question:"Can you go to Heaven with a sinful nature?",answer:"No, my heart must be changed before I can go to Heaven.",verseReference:"John 3:3, 16",verseText:"Jesus answered him, \"Truly, truly, I say to you, unless one is born again he cannot see the kingdom of God.\""},
+  {id:28,question:"What is this change of heart called?",answer:"Regeneration, being \"born again.\"",verseReference:"Ezekiel 36:26-27",verseText:"And I will give you a new heart, and a new spirit I will put within you. And I will remove the heart of stone from your flesh and give you a heart of flesh."},
+  {id:29,question:"Who can change a sinner\u2019s heart?",answer:"Only God can change a sinner\u2019s heart.",verseReference:"Acts 4:12",verseText:"And there is salvation in no one else, for there is no other name under heaven given among men by which we must be saved."},
+  {id:30,question:"Who is the Redeemer of God\u2019s elect?",answer:"The only Savior of men is the Lord Jesus Christ, who being the eternal Son of God, became man and so is both God and man in two natures and one person.",verseReference:"John 14:6",verseText:"Jesus said to him, \"I am the way, and the truth, and the life. No one comes to the Father except through me.\""},
+  {id:31,question:"How is your heart changed?",answer:"My heart is changed by the Holy Spirit because of the grace of God.",verseReference:"Titus 3:4-6",verseText:"But when the goodness and loving kindness of God our Savior appeared, he saved us, not because of works done by us in righteousness, but according to his own mercy."},
+  {id:32,question:"What is grace?",answer:"Grace is God\u2019s kindness to us when we deserve punishment.",verseReference:"Deuteronomy 7:6",verseText:"For you are a people holy to the LORD your God. The LORD your God has chosen you to be a people for his treasured possession."},
+  {id:33,question:"What work did Christ do to save you?",answer:"Christ perfectly kept the law of God and suffered the punishment due for my sins.",verseReference:"2 Corinthians 5:21",verseText:"For our sake he made him to be sin who knew no sin, so that in him we might become the righteousness of God."},
+  {id:34,question:"Can anyone be saved by his own works?",answer:"No one can be saved by his own works.",verseReference:"Ephesians 2:8-9",verseText:"For by grace you have been saved through faith. And this is not your own doing; it is the gift of God, not a result of works, so that no one may boast."},
+  {id:35,question:"What do we gain from the work of Christ?",answer:"God regenerates, justifies, and sanctifies those who believe in Christ.",verseReference:"1 Corinthians 6:11",verseText:"And such were some of you. But you were washed, you were sanctified, you were justified in the name of the Lord Jesus Christ and by the Spirit of our God."},
+  {id:36,question:"What is justification?",answer:"Justification is God forgiving all my sins and declaring me to be righteous.",verseReference:"Romans 8:1",verseText:"There is therefore now no condemnation for those who are in Christ Jesus."},
+  {id:37,question:"What is sanctification?",answer:"Sanctification is God making me holy in heart and behavior.",verseReference:"1 Thessalonians 5:23-24",verseText:"Now may the God of peace himself sanctify you completely, and may your whole spirit and soul and body be kept blameless at the coming of our Lord Jesus Christ."},
+  {id:38,question:"What are the two parts of sanctification?",answer:"Dying to sin and living to righteousness.",verseReference:"Galatians 2:20",verseText:"I have been crucified with Christ. It is no longer I who live, but Christ who lives in me."},
+  {id:39,question:"Who will be saved?",answer:"Whoever repents and believes on the Lord Jesus Christ.",verseReference:"Isaiah 55:7",verseText:"Let the wicked forsake his way, and the unrighteous man his thoughts; let him return to the LORD, that he may have compassion on him, and to our God, for he will abundantly pardon."},
+  {id:40,question:"What does it mean to repent?",answer:"To repent is to be sorry for sin, and to hate and forsake it because it displeases God.",verseReference:"2 Chronicles 7:14",verseText:"If my people who are called by my name humble themselves, and pray and seek my face and turn from their wicked ways, then I will hear from heaven and will forgive their sin and heal their land."},
+  {id:41,question:"What is faith in Christ?",answer:"Faith in Christ is trusting in Him alone for salvation.",verseReference:"Philippians 3:9",verseText:"And be found in him, not having a righteousness of my own that comes from the law, but that which comes through faith in Christ, the righteousness from God that depends on faith."},
+  {id:42,question:"How were people saved before the coming of Christ?",answer:"People were saved by believing in a Savior to come.",verseReference:"Hebrews 11:13",verseText:"These all died in faith, not having received the things promised, but having seen them and greeted them from afar."},
+  {id:43,question:"Did Jesus ever sin?",answer:"No, Jesus lived a sinless life.",verseReference:"1 Peter 2:22",verseText:"He committed no sin, neither was deceit found in his mouth."},
+  {id:44,question:"What kind of death did Christ die?",answer:"A painful and shameful death on the cross.",verseReference:"Philippians 2:8",verseText:"And being found in human form, he humbled himself by becoming obedient to the point of death, even death on a cross."},
+  {id:45,question:"What are the offices Christ fulfilled as the promised Messiah?",answer:"Prophet, Priest, and King.",verseReference:"Isaiah 9:6",verseText:"For to us a child is born, to us a son is given; and the government shall be upon his shoulder, and his name shall be called Wonderful Counselor, Mighty God, Everlasting Father, Prince of Peace."},
+  {id:46,question:"How is Christ your prophet?",answer:"Christ teaches me the will of God.",verseReference:"John 15:15",verseText:"No longer do I call you servants, for the servant does not know what his master is doing; but I have called you friends, for all that I have heard from my Father I have made known to you."},
+  {id:47,question:"How is Christ your priest?",answer:"Christ died for me; He prays for me, He washed away my every sin.",verseReference:"Hebrews 7:25",verseText:"Consequently, he is able to save to the uttermost those who draw near to God through him, since he always lives to make intercession for them."},
+  {id:48,question:"How is Christ your king?",answer:"Christ rules over me; He defends me; He will establish His Kingdom on earth.",verseReference:"Isaiah 33:22",verseText:"For the LORD is our judge; the LORD is our lawgiver; the LORD is our king; he will save us."},
+  {id:49,question:"Did Christ remain in the tomb?",answer:"No, Christ is risen on the third day, just as He did say.",verseReference:"Matthew 28:5-6",verseText:"But the angel said to the women, \"Do not be afraid, for I know that you seek Jesus who was crucified. He is not here, for he has risen, as he said.\""},
+  {id:50,question:"Where is Christ now?",answer:"Christ is in heaven, and He\u2019s praying for me; He sits at the right hand of God.",verseReference:"Romans 8:34",verseText:"Who is to condemn? Christ Jesus is the one who died\u2014more than that, who was raised\u2014who is at the right hand of God, who indeed is interceding for us."},
+  {id:51,question:"Will Christ come again?",answer:"Yes, He is coming soon.",verseReference:"Revelation 22:12",verseText:"\"Behold, I am coming soon, bringing my recompense with me, to repay each one for what he has done.\""},
+  {id:52,question:"When will Christ return?",answer:"No one knows when Christ will return.",verseReference:"Matthew 24:36",verseText:"But concerning that day and hour no one knows, not even the angels of heaven, nor the Son, but the Father only."},
+  {id:53,question:"What happens to a man when he dies?",answer:"The body returns to the dust, and the spirit will go to either heaven or hell.",verseReference:"Romans 6:23",verseText:"For the wages of sin is death, but the free gift of God is eternal life in Christ Jesus our Lord."},
+  {id:54,question:"What will happen when Christ returns?",answer:"Our bodies will be raised from the dust, and united again with our spirits.",verseReference:"Job 19:25-27",verseText:"For I know that my Redeemer lives, and at the last he will stand upon the earth."},
+  {id:55,question:"What will happen to the wicked on judgment day?",answer:"The wicked will go down on judgment day and will be cast into the lake of fire.",verseReference:"Revelation 20:15",verseText:"And if anyone\u2019s name was not found written in the book of life, he was thrown into the lake of fire."},
+  {id:56,question:"What will happen to every Christian on the last day?",answer:"Every Christian will live with Jesus in the new heavens and the new earth.",verseReference:"Revelation 21",verseText:"Then I saw a new heaven and a new earth, for the first heaven and the first earth had passed away, and the sea was no more."},
+  {id:57,question:"Where do we learn to love and obey God?",answer:"In the Bible, we learn to love and obey God.",verseReference:"Joshua 1:8",verseText:"This Book of the Law shall not depart from your mouth, but you shall meditate on it day and night."},
+  {id:58,question:"Who wrote the Bible?",answer:"Holy men of God, who were taught and chosen by God, wrote the Bible.",verseReference:"2 Peter 1:21",verseText:"For no prophecy was ever produced by the will of man, but men spoke from God as they were carried along by the Holy Spirit."},
+  {id:59,question:"What is the greatest command?",answer:"Love the Lord your God with all your heart, soul, and mind; and the second is like it, love your neighbor as yourself.",verseReference:"Matthew 22:36-37",verseText:"\"Teacher, which is the great commandment in the Law?\" And he said to him, \"You shall love the Lord your God with all your heart and with all your soul and with all your mind.\""},
+  {id:60,question:"Of what use are the ten commandments?",answer:"They teach us our duty to God and our duty to man, and they show us our need for a Savior.",verseReference:"Galatians 3:24",verseText:"So then, the law was our guardian until Christ came, in order that we might be justified by faith."},
+  {id:61,question:"What is prayer?",answer:"Prayer is praising God for who He is, thanking God for what He\u2019s done, and asking Him for things He has promised.",verseReference:"Philippians 4:5-7",verseText:"Do not be anxious about anything, but in everything by prayer and supplication with thanksgiving let your requests be made known to God."},
+  {id:62,question:"What guide has Christ given to teach us how to pray?",answer:"Christ has given us the Lord\u2019s Prayer to teach us how to pray.",verseReference:"Matthew 6:7-9",verseText:"And when you pray, do not heap up empty phrases as the Gentiles do. Pray then like this: \"Our Father in heaven, hallowed be your name.\""}
+];
+
+// ─── STATE ───
+let currentWeek = parseInt(localStorage.getItem('catechism-week') || '1');
+let currentScreen = 'menu';
+
+// This Week state
+let twStage = 0; // 0=question, 1=answer, 2=scripture
+
+// Rapid Fire state
+let rapidOrder = 'sequential'; // 'sequential' or 'random'
+let rapidPool = [];
+let rapidIndex = 0;
+let rapidRevealed = false;
+let rapidStreak = 0;
+let rapidCount = 0;
+let rapidTimerSeconds = 0;
+let rapidTimerRemaining = 0;
+let rapidTimerInterval = null;
+
+// Challenge state
+let challengeQuestion = null;
+let challengeStage = 0; // 0=question, 1=answer/blanks, 2=full reveal
+let challengeIsFillBlank = false;
+let challengeBlankedWords = [];
+
+// ─── THEME ───
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn = document.getElementById('theme-toggle');
+  if (html.classList.contains('dark')) {
+    html.classList.remove('dark');
+    html.classList.add('light');
+    btn.innerHTML = '&#9790;';
+    localStorage.setItem('catechism-theme', 'light');
+  } else if (html.classList.contains('light')) {
+    html.classList.remove('light');
+    html.classList.add('dark');
+    btn.innerHTML = '&#9788;';
+    localStorage.setItem('catechism-theme', 'dark');
+  } else {
+    // No class set yet — detect current and flip
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (isDark) {
+      html.classList.add('light');
+      btn.innerHTML = '&#9790;';
+      localStorage.setItem('catechism-theme', 'light');
+    } else {
+      html.classList.add('dark');
+      btn.innerHTML = '&#9788;';
+      localStorage.setItem('catechism-theme', 'dark');
+    }
+  }
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('catechism-theme');
+  const btn = document.getElementById('theme-toggle');
+  if (saved === 'dark') {
+    document.documentElement.classList.add('dark');
+    btn.innerHTML = '&#9788;';
+  } else if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    btn.innerHTML = '&#9790;';
+  } else {
+    // Follow system preference
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    btn.innerHTML = isDark ? '&#9788;' : '&#9790;';
+  }
+}
+
+// ─── INIT ───
+function init() {
+  initTheme();
+  updateWeekDisplay();
+  document.addEventListener('keydown', handleKeydown);
+  document.addEventListener('click', handleClick);
+}
+
+function updateWeekDisplay() {
+  document.getElementById('week-display').textContent = currentWeek;
+  localStorage.setItem('catechism-week', currentWeek);
+}
+
+function changeWeek(delta) {
+  currentWeek = Math.max(1, Math.min(62, currentWeek + delta));
+  updateWeekDisplay();
+}
+
+// ─── NAVIGATION ───
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  currentScreen = id.replace('-screen', '');
+}
+
+function goToMenu() {
+  stopRapidTimer();
+  showScreen('menu-screen');
+  currentScreen = 'menu';
+}
+
+// ─── THIS WEEK ───
+function showThisWeek() {
+  const q = questions[currentWeek - 1];
+  twStage = 0;
+  document.getElementById('tw-qnum').textContent = 'Question ' + q.id;
+  document.getElementById('tw-question').textContent = q.question;
+  document.getElementById('tw-answer').textContent = q.answer;
+  document.getElementById('tw-answer').classList.remove('visible');
+  document.getElementById('tw-ref').textContent = q.verseReference;
+  document.getElementById('tw-verse').textContent = q.verseText;
+  document.getElementById('tw-scripture').classList.remove('visible');
+  document.getElementById('tw-hint').textContent = 'Tap or press Space to reveal answer';
+  document.getElementById('tw-hint').style.display = '';
+  showScreen('thisweek-screen');
+}
+
+function advanceThisWeek() {
+  if (twStage === 0) {
+    document.getElementById('tw-answer').classList.add('visible');
+    document.getElementById('tw-hint').textContent = 'Tap or press Space to show scripture';
+    twStage = 1;
+  } else if (twStage === 1) {
+    document.getElementById('tw-scripture').classList.add('visible');
+    document.getElementById('tw-hint').style.display = 'none';
+    twStage = 2;
+  }
+}
+
+// ─── RAPID FIRE ───
+function showRapidFire() {
+  if (currentWeek <= 1) {
+    alert('Set the current week to at least 2 to have review questions!');
+    return;
+  }
+  rapidPool = questions.slice(0, currentWeek - 1).map((q, i) => i);
+  if (rapidOrder === 'random') shuffleArray(rapidPool);
+  rapidIndex = 0;
+  rapidRevealed = false;
+  rapidStreak = 0;
+  rapidCount = 0;
+  updateRapidStats();
+  updateRapidOrderBtn();
+  showScreen('rapid-screen');
+  loadRapidQuestion();
+  if (rapidTimerSeconds > 0) startRapidTimer();
+}
+
+function loadRapidQuestion() {
+  if (rapidIndex >= rapidPool.length) {
+    // Reshuffle / restart
+    if (rapidOrder === 'random') shuffleArray(rapidPool);
+    rapidIndex = 0;
+  }
+  const q = questions[rapidPool[rapidIndex]];
+  document.getElementById('rapid-qnum').textContent = 'Question ' + q.id;
+  document.getElementById('rapid-question').textContent = q.question;
+  document.getElementById('rapid-answer').textContent = q.answer;
+  document.getElementById('rapid-answer').classList.remove('visible');
+  rapidRevealed = false;
+  // Progress bar
+  const pct = (rapidCount / rapidPool.length) * 100;
+  document.getElementById('rapid-progress-bar').style.width = Math.min(pct, 100) + '%';
+}
+
+function advanceRapidFire() {
+  if (!rapidRevealed) {
+    document.getElementById('rapid-answer').classList.add('visible');
+    rapidRevealed = true;
+    rapidStreak++;
+    rapidCount++;
+    updateRapidStats();
+    // Streak animation
+    const el = document.getElementById('rapid-streak');
+    el.classList.remove('streak-flash');
+    void el.offsetWidth;
+    el.classList.add('streak-flash');
+  } else {
+    rapidIndex++;
+    loadRapidQuestion();
+  }
+}
+
+function updateRapidStats() {
+  document.getElementById('rapid-streak').textContent = rapidStreak;
+  document.getElementById('rapid-count').textContent = rapidCount;
+}
+
+function toggleRapidOrder() {
+  rapidOrder = rapidOrder === 'sequential' ? 'random' : 'sequential';
+  updateRapidOrderBtn();
+  // Re-init pool
+  rapidPool = questions.slice(0, currentWeek - 1).map((q, i) => i);
+  if (rapidOrder === 'random') shuffleArray(rapidPool);
+  rapidIndex = 0;
+  rapidCount = 0;
+  rapidStreak = 0;
+  updateRapidStats();
+  loadRapidQuestion();
+}
+
+function updateRapidOrderBtn() {
+  const btn = document.getElementById('rapid-order-btn');
+  btn.textContent = rapidOrder === 'sequential' ? 'Sequential' : 'Random';
+  btn.classList.toggle('active', rapidOrder === 'random');
+}
+
+function openTimerSetup() {
+  document.getElementById('timer-setup').classList.remove('hidden');
+}
+
+function setTimer(seconds) {
+  document.getElementById('timer-setup').classList.add('hidden');
+  rapidTimerSeconds = seconds;
+  const btn = document.getElementById('rapid-timer-btn');
+  if (seconds === 0) {
+    btn.textContent = 'Timer: Off';
+    btn.classList.remove('active');
+    document.getElementById('rapid-timer').textContent = '';
+    stopRapidTimer();
+  } else {
+    btn.textContent = 'Timer: ' + (seconds/60) + 'm';
+    btn.classList.add('active');
+    if (currentScreen === 'rapid') startRapidTimer();
+  }
+}
+
+function startRapidTimer() {
+  stopRapidTimer();
+  if (rapidTimerSeconds <= 0) return;
+  rapidTimerRemaining = rapidTimerSeconds;
+  updateTimerDisplay();
+  rapidTimerInterval = setInterval(() => {
+    rapidTimerRemaining--;
+    updateTimerDisplay();
+    if (rapidTimerRemaining <= 0) {
+      stopRapidTimer();
+      document.getElementById('rapid-timer').textContent = "Time's up!";
+    }
+  }, 1000);
+}
+
+function stopRapidTimer() {
+  if (rapidTimerInterval) {
+    clearInterval(rapidTimerInterval);
+    rapidTimerInterval = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('rapid-timer');
+  const m = Math.floor(rapidTimerRemaining / 60);
+  const s = rapidTimerRemaining % 60;
+  el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  el.className = 'rapid-timer ' + (rapidTimerRemaining <= 10 ? 'warning' : 'normal');
+}
+
+// ─── RANDOM CHALLENGE ───
+function showChallenge() {
+  if (currentWeek <= 1) {
+    alert('Set the current week to at least 2 to have review questions!');
+    return;
+  }
+  const pool = questions.slice(0, currentWeek - 1);
+  challengeQuestion = pool[Math.floor(Math.random() * pool.length)];
+  challengeIsFillBlank = Math.random() > 0.4; // 60% chance fill-in-blank
+  challengeStage = 0;
+
+  const qEl = document.getElementById('challenge-question');
+  qEl.textContent = challengeQuestion.question;
+  qEl.classList.remove('dramatic-enter');
+  void qEl.offsetWidth;
+  qEl.classList.add('dramatic-enter');
+
+  document.getElementById('challenge-answer').classList.remove('visible');
+  document.getElementById('challenge-buttons').classList.remove('visible');
+
+  if (challengeIsFillBlank) {
+    document.getElementById('challenge-mode-label').textContent = 'Fill in the blank';
+    prepareFillBlank();
+  } else {
+    document.getElementById('challenge-mode-label').textContent = 'Full answer';
+  }
+
+  showScreen('challenge-screen');
+}
+
+function prepareFillBlank() {
+  const words = challengeQuestion.answer.split(/\s+/);
+  // Pick 1-2 significant words to blank (skip short words)
+  const candidates = [];
+  words.forEach((w, i) => {
+    const clean = w.replace(/[^a-zA-Z]/g, '');
+    if (clean.length >= 3) candidates.push(i);
+  });
+  const numBlanks = Math.min(candidates.length, words.length > 6 ? 2 : 1);
+  shuffleArray(candidates);
+  challengeBlankedWords = candidates.slice(0, numBlanks).sort();
+
+  const ansEl = document.getElementById('challenge-answer');
+  let html = '';
+  words.forEach((w, i) => {
+    if (challengeBlankedWords.includes(i)) {
+      // Preserve punctuation around blanked word
+      const match = w.match(/^([^a-zA-Z]*)([a-zA-Z]+)([^a-zA-Z]*)$/);
+      if (match) {
+        html += match[1] + '<span class="blank" data-word="' + match[2] + '">' + '_'.repeat(match[2].length) + '</span>' + match[3] + ' ';
+      } else {
+        html += '<span class="blank" data-word="' + w + '">' + '_'.repeat(w.length) + '</span> ';
+      }
+    } else {
+      html += w + ' ';
+    }
+  });
+  ansEl.innerHTML = html;
+}
+
+function advanceChallenge() {
+  if (challengeStage === 0) {
+    const ansEl = document.getElementById('challenge-answer');
+    if (challengeIsFillBlank) {
+      // Show answer with blanks
+      ansEl.classList.add('visible');
+    } else {
+      ansEl.textContent = challengeQuestion.answer;
+      ansEl.classList.add('visible');
+    }
+    document.getElementById('challenge-buttons').classList.add('visible');
+    challengeStage = 1;
+  } else if (challengeStage === 1 && challengeIsFillBlank) {
+    // Reveal blanked words
+    document.querySelectorAll('#challenge-answer .blank').forEach(el => {
+      el.textContent = el.dataset.word;
+      el.classList.add('revealed');
+    });
+    challengeStage = 2;
+  }
+}
+
+function challengeResult(correct) {
+  if (correct) {
+    // Reveal blanks if fill-in-blank
+    if (challengeIsFillBlank) {
+      document.querySelectorAll('#challenge-answer .blank').forEach(el => {
+        el.textContent = el.dataset.word;
+        el.classList.add('revealed');
+      });
+    }
+    launchConfetti();
+  }
+  // Auto-advance to next question after a moment
+  setTimeout(() => showChallenge(), correct ? 2500 : 1200);
+}
+
+// ─── CONFETTI ───
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = [];
+  const colors = ['#C4553A', '#F59E0B', '#3B82F6', '#16A34A', '#A855F7', '#EC4899'];
+  for (let i = 0; i < 120; i++) {
+    pieces.push({
+      x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+      y: canvas.height / 2,
+      vx: (Math.random() - 0.5) * 18,
+      vy: (Math.random() - 1) * 18 - 5,
+      w: Math.random() * 12 + 4,
+      h: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * Math.PI * 2,
+      rv: (Math.random() - 0.5) * 0.3,
+      gravity: 0.25 + Math.random() * 0.15
+    });
+  }
+
+  let frame = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    pieces.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += p.gravity;
+      p.vx *= 0.99;
+      p.rot += p.rv;
+      if (p.y < canvas.height + 50) alive = true;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, 1 - frame / 90);
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    if (alive && frame < 100) requestAnimationFrame(animate);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  animate();
+}
+
+// ─── INPUT HANDLING ───
+function handleKeydown(e) {
+  if (e.key === 'Escape') {
+    if (currentScreen !== 'menu') {
+      e.preventDefault();
+      goToMenu();
+    }
+    // Close timer setup if open
+    document.getElementById('timer-setup').classList.add('hidden');
+    return;
+  }
+
+  // Close timer setup on any key
+  if (!document.getElementById('timer-setup').classList.contains('hidden')) {
+    return;
+  }
+
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    handleAdvance();
+  }
+
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (currentScreen === 'menu') changeWeek(-1);
+  }
+  if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    if (currentScreen === 'menu') changeWeek(1);
+  }
+}
+
+function handleClick(e) {
+  // Don't advance if clicking buttons
+  if (e.target.closest('button') || e.target.closest('.week-selector') || e.target.closest('.rapid-top-bar') || e.target.closest('.timer-setup')) return;
+  if (currentScreen !== 'menu') {
+    handleAdvance();
+  }
+}
+
+function handleAdvance() {
+  if (currentScreen === 'thisweek') advanceThisWeek();
+  else if (currentScreen === 'rapid') advanceRapidFire();
+  else if (currentScreen === 'challenge') advanceChallenge();
+}
+
+// ─── UTILS ───
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+// ─── WINDOW RESIZE ───
+window.addEventListener('resize', () => {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+init();
+</script>
+</body>
+</html>
