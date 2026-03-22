@@ -908,17 +908,17 @@ html.light {
 <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle" title="Toggle dark mode">&#9790;</button>
 
 <!-- MENU SCREEN -->
-<div id="menu-screen" class="screen">
+<div id="menu-screen" class="screen study-active">
   <h1 class="menu-title">Catechism</h1>
   <p class="menu-subtitle">Sunday School Review</p>
 
   <div class="mode-toggle">
-    <button class="mode-toggle-btn active" id="mode-class-btn" onclick="setMode('class')">Class Mode</button>
-    <button class="mode-toggle-btn" id="mode-study-btn" onclick="setMode('study')">Study Mode</button>
+    <button class="mode-toggle-btn active" id="mode-study-btn" onclick="setMode('study')">Study Mode</button>
+    <button class="mode-toggle-btn" id="mode-class-btn" onclick="setMode('class')">Class Mode</button>
   </div>
 
   <!-- Class Mode Content -->
-  <div id="class-mode-content">
+  <div id="class-mode-content" style="display:none;">
     <div class="menu-buttons">
       <button class="menu-btn" onclick="showThisWeek()">
         <span class="btn-icon">&#x1F4D6;</span>
@@ -947,7 +947,7 @@ html.light {
   </div>
 
   <!-- Study Mode Content -->
-  <div id="study-mode-content" class="study-container" style="display:none;">
+  <div id="study-mode-content" class="study-container">
     <input type="text" class="study-search" id="study-search" placeholder="Search questions, answers, verses..." oninput="filterStudyList()">
     <div class="study-list" id="study-list"></div>
   </div>
@@ -1181,6 +1181,7 @@ function init() {
   updateWeekDisplay();
   document.addEventListener('keydown', handleKeydown);
   document.addEventListener('click', handleClick);
+  setMode('study');
 }
 
 function updateWeekDisplay() {
