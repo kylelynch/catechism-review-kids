@@ -164,6 +164,32 @@ body {
   color: var(--accent);
   min-width: 2.5ch;
   text-align: center;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.week-selector .week-display:hover {
+  background: var(--accent-12);
+}
+.week-selector .week-input {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent);
+  width: 3.5ch;
+  text-align: center;
+  background: var(--accent-12);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 4px;
+  font-family: inherit;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.week-selector .week-input::-webkit-outer-spin-button,
+.week-selector .week-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 .week-btn {
   background: var(--accent-12);
@@ -687,7 +713,7 @@ html.light {
   <div class="week-selector">
     <label>Week</label>
     <button class="week-btn" onclick="changeWeek(-1)">&#x25C0;</button>
-    <span class="week-display" id="week-display">1</span>
+    <span class="week-display" id="week-display" onclick="openWeekInput()" title="Tap to pick week">1</span>
     <button class="week-btn" onclick="changeWeek(1)">&#x25B6;</button>
   </div>
 </div>
@@ -913,6 +939,37 @@ function updateWeekDisplay() {
 function changeWeek(delta) {
   currentWeek = Math.max(1, Math.min(62, currentWeek + delta));
   updateWeekDisplay();
+}
+
+function openWeekInput() {
+  const display = document.getElementById('week-display');
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.className = 'week-input';
+  input.min = 1;
+  input.max = 62;
+  input.value = currentWeek;
+  display.replaceWith(input);
+  input.focus();
+  input.select();
+
+  function commit() {
+    const val = parseInt(input.value);
+    if (val >= 1 && val <= 62) currentWeek = val;
+    const span = document.createElement('span');
+    span.className = 'week-display';
+    span.id = 'week-display';
+    span.title = 'Tap to pick week';
+    span.onclick = openWeekInput;
+    input.replaceWith(span);
+    updateWeekDisplay();
+  }
+
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') { input.value = currentWeek; input.blur(); }
+  });
 }
 
 // ─── NAVIGATION ───
