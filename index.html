@@ -641,10 +641,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 .theme-toggle:hover {
   background: var(--accent-12);
   color: var(--accent);
+}
+@media (max-width: 600px) {
+  .theme-toggle {
+    bottom: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    opacity: 0.85;
+  }
 }
 
 /* Manual dark mode override */
@@ -673,11 +684,25 @@ html.light {
 
 /* Responsive */
 @media (max-width: 600px) {
+  .screen { padding: 16px; }
   .rapid-top-bar { padding: 8px 12px; padding-left: 80px; }
   .rapid-stats { gap: 12px; }
   .stat-value { font-size: 16px; }
   .week-selector { flex-wrap: wrap; justify-content: center; }
   .menu-buttons { padding: 0 8px; }
+  .menu-title { font-size: 28px; }
+  .menu-subtitle { margin-bottom: 24px; }
+  .study-list-item { padding: 14px 16px; }
+  .study-list { gap: 6px; }
+  .study-list::-webkit-scrollbar { width: 0; display: none; }
+  .study-list { scrollbar-width: none; }
+}
+
+/* Larger desktop screens */
+@media (min-width: 900px) {
+  .study-container { max-width: 720px; }
+  #study-detail-screen { padding-top: 80px; }
+  .study-detail-wrap { max-width: 800px; padding: 32px; }
 }
 
 /* ─── MODE TOGGLE ─── */
@@ -711,7 +736,7 @@ html.light {
 /* ─── STUDY MODE LIST ─── */
 .study-container {
   width: 100%;
-  max-width: 520px;
+  max-width: 640px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -744,7 +769,19 @@ html.light {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding-bottom: 24px;
+  padding-bottom: 72px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--divider) transparent;
+}
+.study-list::-webkit-scrollbar {
+  width: 6px;
+}
+.study-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.study-list::-webkit-scrollbar-thumb {
+  background: var(--divider);
+  border-radius: 3px;
 }
 .study-list-item {
   background: var(--bg-card);
@@ -896,8 +933,11 @@ html.light {
 
 @media (max-width: 600px) {
   .study-container { padding: 0 4px; }
-  .study-detail-wrap { padding: 16px; }
+  .study-detail-wrap { padding: 16px; padding-top: 8px; }
   .study-detail-nav { flex-wrap: wrap; justify-content: center; }
+  .study-detail-question { margin-bottom: 24px; }
+  .study-detail-num { margin-bottom: 16px; }
+  #study-detail-screen { padding-top: 56px; }
 }
 
 </style>
@@ -912,12 +952,12 @@ html.light {
   <h1 class="menu-title">Catechism</h1>
   <p class="menu-subtitle">Sunday School Review</p>
 
+  <!--
   <div class="mode-toggle">
     <button class="mode-toggle-btn active" id="mode-study-btn" onclick="setMode('study')">Study Mode</button>
     <button class="mode-toggle-btn" id="mode-class-btn" onclick="setMode('class')">Class Mode</button>
   </div>
 
-  <!-- Class Mode Content -->
   <div id="class-mode-content" style="display:none;">
     <div class="menu-buttons">
       <button class="menu-btn" onclick="showThisWeek()">
@@ -945,6 +985,7 @@ html.light {
       <button class="week-btn" onclick="changeWeek(1)">&#x25B6;</button>
     </div>
   </div>
+  -->
 
   <!-- Study Mode Content -->
   <div id="study-mode-content" class="study-container">
@@ -1185,9 +1226,11 @@ function init() {
 }
 
 function updateWeekDisplay() {
-  document.getElementById('week-display').textContent = currentWeek;
+  const wd = document.getElementById('week-display');
+  if (wd) wd.textContent = currentWeek;
   localStorage.setItem('catechism-week', currentWeek);
-  document.getElementById('last-week-btn').style.display = currentWeek <= 1 ? 'none' : '';
+  const lwb = document.getElementById('last-week-btn');
+  if (lwb) lwb.style.display = currentWeek <= 1 ? 'none' : '';
 }
 
 function changeWeek(delta) {
@@ -1710,17 +1753,17 @@ function setMode(mode) {
   const menuScreen = document.getElementById('menu-screen');
 
   if (mode === 'class') {
-    classBtn.classList.add('active');
-    studyBtn.classList.remove('active');
-    classContent.style.display = '';
-    studyContent.style.display = 'none';
-    menuScreen.classList.remove('study-active');
+    if (classBtn) classBtn.classList.add('active');
+    if (studyBtn) studyBtn.classList.remove('active');
+    if (classContent) classContent.style.display = '';
+    if (studyContent) studyContent.style.display = 'none';
+    if (menuScreen) menuScreen.classList.remove('study-active');
   } else {
-    classBtn.classList.remove('active');
-    studyBtn.classList.add('active');
-    classContent.style.display = 'none';
-    studyContent.style.display = '';
-    menuScreen.classList.add('study-active');
+    if (classBtn) classBtn.classList.remove('active');
+    if (studyBtn) studyBtn.classList.add('active');
+    if (classContent) classContent.style.display = 'none';
+    if (studyContent) studyContent.style.display = '';
+    if (menuScreen) menuScreen.classList.add('study-active');
     renderStudyList();
   }
 }
