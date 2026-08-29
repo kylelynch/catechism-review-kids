@@ -1,0 +1,40 @@
+{
+  "name": "catechism-time",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12 <25"
+  },
+  "scripts": {
+    "dev": "vite",
+    "data:generate": "python3 scripts/generate_data.py",
+    "data:sync": "python3 scripts/export_canonical.py && python3 scripts/generate_data.py",
+    "data:check": "python3 scripts/check_data.py",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "test": "vitest run src",
+    "test:e2e": "playwright test",
+    "verify": "npm run data:check && npm run lint && npm run test && npm run build && npm run test:e2e"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "@vitejs/plugin-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@eslint/js": "latest",
+    "@playwright/test": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "eslint": "latest",
+    "eslint-plugin-react-hooks": "latest",
+    "eslint-plugin-react-refresh": "latest",
+    "globals": "latest",
+    "typescript-eslint": "latest",
+    "vitest": "latest"
+  }
+}
