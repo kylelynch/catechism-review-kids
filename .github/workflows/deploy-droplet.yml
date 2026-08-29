@@ -1,0 +1,129 @@
+name: Deploy Catechism Time to droplet
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catechism-production
+  cancel-in-progress: false
+
+jobs:
+  verify-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DEPLOY_ROOT: /srv/catechism-review-kids
+      DEPLOY_HOST: ${{ secrets.DROPLET_HOST }}
+      DEPLOY_USER: ${{ secrets.DROPLET_USER }}
+      DEPLOY_KEY: ${{ secrets.DROPLET_SSH_KEY }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DROPLET_KNOWN_HOSTS }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Fail closed when deployment secrets are missing
+        shell: bash
+        run: |
+          set -euo pipefail
+          for value in DEPLOY_HOST DEPLOY_USER DEPLOY_KEY DEPLOY_KNOWN_HOSTS; do
+            if [[ -z "${!value}" ]]; then
+              echo "Required deployment secret for ${value} is missing." >&2
+              exit 1
+            fi
+          done
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run complete verification and build
+        run: npm run verify
+
+      - name: Package verified site
+        run: tar -C dist -czf catechism-dist-${GITHUB_SHA}.tar.gz .
+
+      - name: Upload verified site artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: catechism-dist-${{ github.sha }}
+          path: catechism-dist-${{ github.sha }}.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 700 "${HOME}/.ssh"
+          printf '%s\n' "${DEPLOY_KEY}" > "${HOME}/.ssh/deploy_key"
+          chmod 600 "${HOME}/.ssh/deploy_key"
+          printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > "${HOME}/.ssh/known_hosts"
+          chmod 600 "${HOME}/.ssh/known_hosts"
+
+      - name: Create immutable release directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -i "${HOME}/.ssh/deploy_key" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "install -d -m 755 '${DEPLOY_ROOT}/releases/${GITHUB_SHA}'"
+
+      - name: Upload verified dist
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync -rlptDz --delete --checksum \
+            -e "ssh -i ${HOME}/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=yes" \
+            dist/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_ROOT}/releases/${GITHUB_SHA}/"
+
+      - name: Verify release and switch current atomically
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -i "${HOME}/.ssh/deploy_key" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" bash -s -- "${GITHUB_SHA}" <<'REMOTE'
+          set -euo pipefail
+          root=/srv/catechism-review-kids
+          sha="$1"
+          [[ "$sha" =~ ^[0-9a-f]{40}$ ]]
+          [[ -s "$root/releases/$sha/index.html" ]]
+          grep -q '<div id="root"></div>' "$root/releases/$sha/index.html"
+          cd "$root"
+          rm -f -- ".current-$sha"
+          ln -s "releases/$sha" ".current-$sha"
+          mv -Tf ".current-$sha" current
+          mapfile -d '' old_releases < <(
+            find "$root/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\0' |
+              sort -zrn |
+              tail -z -n +6 |
+              cut -z -d ' ' -f 2-
+          )
+          for release in "${old_releases[@]}"; do
+            name="${release##*/}"
+            if [[ "$release" == "$root/releases/$name" && "$name" =~ ^[0-9a-f]{40}$ ]]; then
+              rm -rf -- "$release"
+            else
+              echo "Refusing to remove unexpected release path: $release" >&2
+              exit 1
+            fi
+          done
+          curl --fail --silent --show-error --insecure \
+            --resolve catechism.kylelynch.us:443:127.0.0.1 \
+            https://catechism.kylelynch.us/healthz
+          REMOTE
+
+      - name: Remove local SSH key
+        if: always()
+        shell: bash
+        run: rm -f -- "${HOME}/.ssh/deploy_key"
