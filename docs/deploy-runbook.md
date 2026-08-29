@@ -114,7 +114,7 @@ html="$(curl --fail --silent --show-error --insecure \
   https://catechism.kylelynch.us/)"
 grep -q '<title>Catechism Time</title>' <<<"$html"
 grep -q '<div id="root"></div>' <<<"$html"
-asset="$(grep -oE '(src|href)="\./assets/[^"]+"' <<<"$html" | sed -n '1{s/^(src|href)="\.\///; s/"$//; p;}')"
+asset="$(grep -oE '(src|href)="\./assets/[^"]+"' <<<"$html" | sed -E -n '1{s/^(src|href)="\.\///; s/"$//; p;}')"
 [[ "$asset" =~ ^assets/[A-Za-z0-9._-]+$ ]]
 curl --fail --silent --show-error --insecure --output /dev/null \
   --resolve catechism.kylelynch.us:443:127.0.0.1 \

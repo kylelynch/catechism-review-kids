@@ -11,7 +11,7 @@
     "data:generate": "python3 scripts/generate_data.py",
     "data:sync": "python3 scripts/export_canonical.py && python3 scripts/generate_data.py",
     "data:check": "python3 scripts/check_data.py",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && bash scripts/check_deploy_assets.sh",
     "lint": "eslint .",
     "test": "vitest run src",
     "test:e2e": "playwright test",
