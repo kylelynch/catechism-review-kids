@@ -28,7 +28,11 @@ Say stages start with the answer ready.
 
 Space and Right Arrow pause or continue an active countdown or recitation.
 
+Presentation clickers can use Page Down or Down Arrow for the same forward action.
+
 Left Arrow cancels an active recitation and resets the current slide.
+
+Page Up and Up Arrow perform the same backward or reset action.
 
 The setup pace has five persistent levels: Very slow (650 ms), Slow (550 ms), Medium (450 ms), Brisk (370 ms), and Fast (300 ms).
 

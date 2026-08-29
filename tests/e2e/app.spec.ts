@@ -90,6 +90,53 @@ test("Listen reveals once and advances directly to guided Say", async ({ page })
   await expect(page.locator(".word.active")).toBeVisible({ timeout: 5000 });
 });
 
+test("presentation clicker Page and vertical Arrow keys preserve navigation semantics", async ({ page }) => {
+  await start(page, 10);
+  await page.evaluate(() => {
+    window.addEventListener("keydown", (event) => {
+      if (["PageDown", "PageUp", "ArrowDown", "ArrowUp"].includes(event.key))
+        setTimeout(() => sessionStorage.setItem(`prevented-${event.key}`, String(event.defaultPrevented)));
+    });
+  });
+  const initialScroll = await page.evaluate(() => scrollY);
+  await page.keyboard.press("PageDown");
+  await expect(page.locator("main")).toHaveAttribute("data-phase", "revealing");
+  await page.waitForTimeout(190);
+  await page.keyboard.press("PageDown");
+  await expect(page.locator("main")).toHaveAttribute("data-phase", "ready");
+  await page.waitForTimeout(190);
+  await page.keyboard.press("PageDown");
+  await page.waitForTimeout(350);
+  await expect(page.locator("main")).toHaveAttribute("data-stage", "say");
+  await page.keyboard.press("PageUp");
+  await page.waitForTimeout(350);
+  await expect(page.locator("main")).toHaveAttribute("data-stage", "meet");
+  await expect(page.locator("main")).toHaveAttribute("data-phase", "hidden");
+  await page.waitForTimeout(190);
+  await page.keyboard.press("ArrowDown");
+  await page.waitForTimeout(190);
+  await page.keyboard.press("ArrowDown");
+  await page.waitForTimeout(190);
+  await page.keyboard.press("ArrowDown");
+  await page.waitForTimeout(350);
+  await expect(page.locator("main")).toHaveAttribute("data-stage", "say");
+  await page.keyboard.press("ArrowDown");
+  await expect(page.locator("main")).toHaveAttribute("data-phase", "countdown");
+  await page.waitForTimeout(190);
+  await page.keyboard.press("PageDown");
+  await expect(page.locator("main")).toHaveAttribute("data-phase", "paused");
+  await page.waitForTimeout(190);
+  await page.keyboard.press("PageDown");
+  await expect(page.locator("main")).not.toHaveAttribute("data-phase", "paused");
+  await page.waitForTimeout(190);
+  await page.keyboard.press("ArrowUp");
+  await expect(page.locator("main")).toHaveAttribute("data-phase", "ready");
+  await page.waitForTimeout(50);
+  expect(await page.evaluate(() => scrollY)).toBe(initialScroll);
+  for (const key of ["PageDown", "PageUp", "ArrowDown", "ArrowUp"])
+    expect(await page.evaluate((name) => sessionStorage.getItem(`prevented-${name}`), key)).toBe("true");
+});
+
 test("reveal cleanup handles Left, Restart, visibility, and Escape", async ({ page }) => {
   await page.goto("/?q=1&review=0&speed=3");
   await page.getByRole("button", { name: /Start/ }).click();
