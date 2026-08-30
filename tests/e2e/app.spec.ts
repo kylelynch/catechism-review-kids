@@ -62,6 +62,15 @@ test("a confirmed setup resumes at the first presentation screen after restart",
   await expect(page.getByTestId("recitation-speed")).toHaveValue("4");
 });
 
+test("Space activates a focused Settings button instead of advancing", async ({ page }) => {
+  await start(page, 10, 0);
+  const settings = page.getByRole("button", { name: "Settings" });
+  await settings.focus();
+  await expect(settings).toBeFocused();
+  await page.keyboard.press("Space");
+  await expect(page.getByRole("heading", { name: "Which question are we learning?" })).toBeVisible();
+});
+
 test("malformed saved settings fall back to setup safely", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("catechism-presentation-settings", "{broken"));
   await page.goto("/");
