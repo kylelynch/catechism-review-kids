@@ -71,6 +71,31 @@ test("Space activates a focused Settings button instead of advancing", async ({ 
   await expect(page.getByRole("heading", { name: "Which question are we learning?" })).toBeVisible();
 });
 
+test("navigation keys work while presentation header buttons retain focus", async ({ page }) => {
+  await start(page, 10, 0);
+  for (const forward of ["ArrowRight", "ArrowDown", "PageDown"]) {
+    const restart = page.getByRole("button", { name: "Restart" });
+    await restart.focus();
+    await expect(restart).toBeFocused();
+    await page.keyboard.press(forward);
+    await expect(page.locator("main")).toHaveAttribute("data-phase", "revealing");
+    await restart.click();
+    await expect(page.locator("main")).toHaveAttribute("data-phase", "hidden");
+    await page.waitForTimeout(190);
+  }
+
+  for (const backward of ["ArrowLeft", "PageUp"]) {
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+    await listenToSay(page);
+    const settings = page.getByRole("button", { name: "Settings" });
+    await settings.focus();
+    await expect(settings).toBeFocused();
+    await page.keyboard.press(backward);
+    await expect(page.locator("main")).toHaveAttribute("data-stage", "meet");
+    await page.waitForTimeout(350);
+  }
+});
+
 test("malformed saved settings fall back to setup safely", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("catechism-presentation-settings", "{broken"));
   await page.goto("/");
