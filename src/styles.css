@@ -40,6 +40,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid
 .session { height: 100vh; height: 100svh; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; background: var(--bg); overflow: hidden; }
 .session > header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; padding: 18px clamp(18px, 3vw, 40px); border-bottom: 1px solid var(--border); background: color-mix(in oklch, var(--bg) 92%, transparent); backdrop-filter: blur(12px); }
 .header-actions { display: flex; gap: 8px; }
+.settings-button { display: inline-flex; align-items: center; gap: 6px; }
 .quiet, .controls button { min-height: 44px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 12px; background: transparent; color: var(--fg); font-size: 14px; font-weight: 500; }
 .quiet:hover, .controls button:hover { border-color: var(--fg); background: var(--surface); } .controls button:disabled { opacity: 0.45; cursor: not-allowed; }
 .step { justify-self: end; } .step, .controls span { font-family: var(--font-mono); color: var(--muted); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
@@ -84,7 +85,8 @@ blockquote { font-style: normal; } blockquote p { margin: 0; white-space: pre-wr
 .kind-scripture blockquote { margin-top: 16px; }
 .kind-scripture blockquote { width: min(1100px, 100%); max-width: none; }
 .kind-scripture blockquote p { font-size: clamp(24px, 1.9vw, 32px); line-height: 1.28; }
-.kind-close > header { visibility: hidden; }
+.kind-close > header { border-bottom-color: transparent; background: var(--bg); }
+.kind-close .memory-window, .kind-close .step, .kind-close .header-actions .quiet:not(.settings-button) { visibility: hidden; }
 .kind-close .stage { min-height: 0; }
 .kind-close .controls { border-top-color: transparent; background: var(--bg); }
 .kind-close .controls span { visibility: hidden; }

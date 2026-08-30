@@ -35,18 +35,38 @@ async function reach(page: Page, kind: string) {
   throw new Error(`Did not reach ${kind}`);
 }
 
-test("setup defaults, persists, and lets the query override reading pace", async ({ page }) => {
+test("setup defaults and lets the query override reading pace", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("recitation-speed")).toHaveValue("3");
-  await page.getByTestId("recitation-speed").selectOption("5");
-  await page.getByRole("button", { name: /Start/ }).click();
-  await page.getByRole("button", { name: "Exit" }).click();
-  await page.reload();
-  await expect(page.getByTestId("recitation-speed")).toHaveValue("5");
   await page.goto("/?speed=1");
   await expect(page.getByTestId("recitation-speed")).toHaveValue("1");
   await page.goto("/?speed=99");
   await expect(page.getByTestId("recitation-speed")).toHaveValue("5");
+});
+
+test("a confirmed setup resumes at the first presentation screen after restart", async ({ page }) => {
+  await page.goto("/?timing=test");
+  await page.getByTestId("question-select").selectOption("12");
+  await page.getByTestId("review-count").selectOption("3");
+  await page.getByTestId("recitation-speed").selectOption("4");
+  await page.getByRole("button", { name: /Start Catechism Time/ }).click();
+
+  await page.reload();
+  await expect(page.locator("main")).toHaveAttribute("data-stage", "review");
+  await expect(page.locator("main")).toHaveAttribute("data-phase", "ready");
+
+  await page.getByRole("button", { name: "Settings" }).click();
+  await expect(page.getByRole("heading", { name: "Which question are we learning?" })).toBeVisible();
+  await expect(page.getByTestId("question-select")).toHaveValue("12");
+  await expect(page.getByTestId("review-count")).toHaveValue("3");
+  await expect(page.getByTestId("recitation-speed")).toHaveValue("4");
+});
+
+test("malformed saved settings fall back to setup safely", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("catechism-presentation-settings", "{broken"));
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Which question are we learning?" })).toBeVisible();
+  await expect(page.getByTestId("question-select")).toHaveValue("1");
 });
 
 test("Listen reveals once and advances directly to guided Say", async ({ page }) => {
@@ -184,7 +204,7 @@ test("guided speech highlights question, boundary, then answer and pauses in eit
   await expect(page.locator(".step")).toHaveText("2 / 6");
 });
 
-test("Exit from question, boundary, or answer cannot leak a stale highlight into a new session", async ({ page }) => {
+test("Settings from question, boundary, or answer cannot leak a stale highlight into a new session", async ({ page }) => {
   for (const region of ["question", "boundary", "answer"] as const) {
     await page.goto("/?q=10&review=0&speed=5");
     await page.getByRole("button", { name: /Start/ }).click();
@@ -202,7 +222,7 @@ test("Exit from question, boundary, or answer cannot leak a stale highlight into
       await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
       await expect(page.locator("main")).toHaveAttribute("data-phase", "paused");
     }
-    await page.getByRole("button", { name: "Exit" }).click();
+    await page.getByRole("button", { name: "Settings" }).click();
     await page.getByRole("button", { name: /Start/ }).click();
     await page.waitForTimeout(350);
     await page.keyboard.press("Space");
@@ -212,6 +232,7 @@ test("Exit from question, boundary, or answer cannot leak a stale highlight into
     await expect(page.locator("main")).toHaveAttribute("data-active-region", "none");
     await expect(page.locator(".word.active")).toHaveCount(0);
     await expect(page.locator(".word.trailing")).toHaveCount(0);
+    await page.getByRole("button", { name: "Settings" }).click();
   }
 });
 
@@ -254,6 +275,7 @@ test("every countdown beat pulses and resumes without a blank boundary", async (
       await expect(page.locator("main")).toHaveAttribute("data-phase", "reciting", { timeout: 1500 });
       await expect(page.locator(".word.active")).toBeVisible();
     }
+    await page.getByRole("button", { name: "Settings" }).click();
   }
 });
 
@@ -272,7 +294,7 @@ test("rapid clicker input cannot skip phases and restart works during transition
   await page.getByRole("button", { name: "Restart" }).click();
   await expect(page.locator("main")).toHaveAttribute("data-stage", "meet");
   await expect(page.locator("main")).toHaveAttribute("data-phase", "hidden");
-  await page.getByRole("button", { name: "Exit" }).click();
+  await page.getByRole("button", { name: "Settings" }).click();
   await expect(page.getByRole("heading", { name: "Which question are we learning?" })).toBeVisible();
 });
 
